@@ -1,1 +1,4 @@
-<Solution />
+<Solution>
+  <Project Path="UnmanagedDllResolveHelper.Tests/UnmanagedDllResolveHelper.Tests.csproj" />
+  <Project Path="UnmanagedDllResolveHelper/UnmanagedDllResolveHelper.csproj" />
+</Solution>
