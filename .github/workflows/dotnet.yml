@@ -1,0 +1,54 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        runner:
+          - os: ubuntu-latest
+            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.so
+            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dll
+          - os: windows-latest
+            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.dll
+            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dll
+          - os: macos-latest
+            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.dylib
+            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dylib
+    runs-on: ${{ matrix.runner.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test (fail)
+      id: test-fail
+      run: dotnet test --no-build --verbosity normal
+      continue-on-error: true
+      env:
+        NATIVE_PLUGIN_NAME: ${{ matrix.runner.env_fail }}
+    - name: Verify test failure
+      run: |
+        if [ "${{ steps.test-fail.outcome }}" != "failure" ]; then
+          echo "Expected test to fail, but it passed"
+          exit 1
+        fi
+        echo "Test failed as expected"
+    - name: Test (pass)
+      run: dotnet test --no-build --verbosity normal
+      env:
+        NATIVE_PLUGIN_NAME: ${{ matrix.runner.env_pass }}
