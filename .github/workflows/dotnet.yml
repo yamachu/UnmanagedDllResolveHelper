@@ -15,9 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         runner:
-          - os: ubuntu-latest
-            env_fail: SampleNativeLibrary.so
-            env_pass: SampleNativeLibraryWithLoader.so
+          # NOTE: Since merged https://github.com/yamachu/UnmanagedDllResolveHelper/pull/6 , this library is not worked on Linux.
+          # due to NativeAOT with LangVersion >= 9 or switchExpression...?
+          # - os: ubuntu-latest
+          #   env_fail: SampleNativeLibrary.so
+          #   env_pass: SampleNativeLibraryWithLoader.so
           - os: windows-latest
             env_fail: SampleNativeLibrary.dll
             env_pass: SampleNativeLibraryWithLoader.dll
