@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SampleNativeLibrary/SampleNativeLibrary.csproj" />
+  <Project Path="SampleNativeLibraryDependency/SampleNativeLibraryDependency.csproj" />
+  <Project Path="SampleNativeLibraryWithLoader/SampleNativeLibraryWithLoader.csproj" />
+</Solution>
