@@ -34,24 +34,42 @@ namespace UnmanagedDllResolveHelper
 
         private static string? GetCurrentLibraryDirectory()
         {
-            return true switch
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                bool _ when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => Platform.Linux.GetCurrentLibraryDirectory(),
-                bool _ when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => Platform.OSX.GetCurrentLibraryDirectory(),
-                bool _ when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => Platform.Windows.GetCurrentLibraryDirectory(),
-                _ => throw new PlatformNotSupportedException("This platform is not supported."),
-            };
+                return Platform.Linux.GetCurrentLibraryDirectory();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return Platform.OSX.GetCurrentLibraryDirectory();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return Platform.Windows.GetCurrentLibraryDirectory();
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private static string[] GetPossibleLibraryPaths(string libraryName, string basePath)
         {
-            return true switch
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                bool _ when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => Platform.Linux.GetPossibleLibraryPaths(libraryName, basePath),
-                bool _ when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => Platform.OSX.GetPossibleLibraryPaths(libraryName, basePath),
-                bool _ when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => Platform.Windows.GetPossibleLibraryPaths(libraryName, basePath),
-                _ => throw new PlatformNotSupportedException("This platform is not supported."),
-            };
+                return Platform.Linux.GetPossibleLibraryPaths(libraryName, basePath);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return Platform.OSX.GetPossibleLibraryPaths(libraryName, basePath);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return Platform.Windows.GetPossibleLibraryPaths(libraryName, basePath);
+            }
+            else
+            {
+                return Array.Empty<string>();
+            }
         }
     }
 }
