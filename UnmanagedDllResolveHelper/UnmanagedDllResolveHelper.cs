@@ -33,11 +33,7 @@ namespace UnmanagedDllResolveHelper
 
         private static string? GetCurrentLibraryDirectory()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return Platform.Linux.GetCurrentLibraryDirectory();
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return Platform.OSX.GetCurrentLibraryDirectory();
             }
@@ -53,11 +49,7 @@ namespace UnmanagedDllResolveHelper
 
         private static string[] GetPossibleLibraryPaths(string libraryName, string basePath)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return Platform.Linux.GetPossibleLibraryPaths(libraryName, basePath);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return Platform.OSX.GetPossibleLibraryPaths(libraryName, basePath);
             }
