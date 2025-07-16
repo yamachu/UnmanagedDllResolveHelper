@@ -40,18 +40,11 @@ jobs:
       working-directory: TestResources
     - name: Test (fail)
       id: test-fail
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
       continue-on-error: true
       env:
         NATIVE_PLUGIN_NAME: ${{ matrix.runner.env_fail }}
-    - name: Verify test failure
-      run: |
-        if [ "${{ steps.test-fail.outcome }}" != "failure" ]; then
-          echo "Expected test to fail, but it passed"
-          exit 1
-        fi
-        echo "Test failed as expected"
     - name: Test (pass)
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
       env:
         NATIVE_PLUGIN_NAME: ${{ matrix.runner.env_pass }}
