@@ -2,43 +2,53 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace UnmanagedDllResolveHelper.Platform
 {
 
     public class Windows
     {
+        private const uint GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS = 0x00000004;
+        private const uint GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT = 0x00000002;
         private const int MAX_PATH = 260;
         private const int EXTENDED_MAX_PATH = 32768;
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern IntPtr GetModuleHandle(string? lpModuleName);
+        static extern bool GetModuleHandleEx(uint dwFlags, IntPtr lpModuleName, out IntPtr phModule);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern int GetModuleFileName(IntPtr hModule, char[] lpFilename, int nSize);
+        static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, int nSize);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        static extern bool AddDllDirectory(string lpPathName);
+
+        [UnmanagedCallersOnly(EntryPoint = "__DONT_CALL_UnmanagedDllResolveHelper_Platform_Windows__")]
+        public static void __WINDOWS_NATIVE_EXPORT_FUNCTION__() { }
+
+        private static unsafe IntPtr GetSelfFunctionPtr()
+        {
+            return (IntPtr)(delegate* unmanaged<void>)&__WINDOWS_NATIVE_EXPORT_FUNCTION__;
+        }
 
         public static string? GetCurrentLibraryDirectory()
         {
-            try
-            {
-                var moduleHandle = GetModuleHandle(null);
-                if (moduleHandle != IntPtr.Zero)
-                {
-                    var buffer = new char[EXTENDED_MAX_PATH];
-                    var result = GetModuleFileName(moduleHandle, buffer, buffer.Length);
-                    if (result > 0)
-                    {
-                        var modulePath = new string(buffer, 0, result);
-                        return Directory.GetParent(modulePath)?.FullName;
-                    }
-                }
-            }
-            catch
-            {
-                return null;
-            }
+            GetModuleHandleEx(
+                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                GetSelfFunctionPtr(),
+                out var hModule);
 
-            return null;
+            if (hModule == IntPtr.Zero)
+                return null;
+
+            var sb = new StringBuilder(EXTENDED_MAX_PATH);
+            GetModuleFileName(hModule, sb, sb.Capacity);
+            if (sb.Length == 0)
+                return null;
+
+            var fullPath = sb.ToString();
+
+            return Path.GetDirectoryName(fullPath);
         }
 
         public static string[] GetPossibleLibraryPaths(string libraryName, string basePath)
@@ -47,7 +57,7 @@ namespace UnmanagedDllResolveHelper.Platform
             {
                 Path.Combine(basePath, $"{libraryName}.dll")
             };
-            if (!libraryName.EndsWith(".dll"))
+            if (!libraryName.StartsWith("lib"))
             {
                 paths.Add(Path.Combine(basePath, $"lib{libraryName}.dll"));
             }
