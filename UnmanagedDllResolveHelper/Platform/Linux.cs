@@ -18,8 +18,8 @@ namespace UnmanagedDllResolveHelper.Platform
             public IntPtr dli_saddr;
         }
 
-        [DllImport("libdl.so.2")]
-        private static extern int dladdr_linux(IntPtr addr, out DlInfo info);
+        [DllImport("libdl")]
+        private static extern int dladdr(IntPtr addr, out DlInfo info);
 
         private static IntPtr GetCurrentModuleHandle()
         {
@@ -41,7 +41,7 @@ namespace UnmanagedDllResolveHelper.Platform
                 var moduleHandle = GetCurrentModuleHandle();
                 if (moduleHandle != IntPtr.Zero)
                 {
-                    var result = dladdr_linux(moduleHandle, out DlInfo info);
+                    var result = dladdr(moduleHandle, out DlInfo info);
                     if (result != 0 && info.dli_fname != IntPtr.Zero)
                     {
                         var modulePath = Marshal.PtrToStringAnsi(info.dli_fname);
@@ -63,8 +63,7 @@ namespace UnmanagedDllResolveHelper.Platform
         {
             var paths = new List<string>
             {
-                Path.Combine(basePath, $"{libraryName}.so"),
-                Path.Combine(basePath, $"lib{libraryName}.so")
+                Path.Combine(basePath, $"{libraryName}.so")
             };
             if (!libraryName.StartsWith("lib"))
             {
