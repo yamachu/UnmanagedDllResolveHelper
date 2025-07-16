@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace UnmanagedDllResolveHelper.Platform
 {
 
-    public class OSX
+    internal class OSX
     {
         [StructLayout(LayoutKind.Sequential)]
         private struct DlInfo
