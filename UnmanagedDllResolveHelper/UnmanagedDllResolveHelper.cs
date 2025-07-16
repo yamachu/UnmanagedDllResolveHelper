@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace UnmanagedDllResolveHelper
 {
     public static class UnmanagedDllCurrentLibraryLocationResolver
     {
-        public static IntPtr ResolveUnmanagedDll(Assembly _, string unmanagedDllName)
+        public static IntPtr ResolveUnmanagedDll(object _, string unmanagedDllName)
         {
             var currentLibraryDir = GetCurrentLibraryDirectory();
             if (string.IsNullOrEmpty(currentLibraryDir))
