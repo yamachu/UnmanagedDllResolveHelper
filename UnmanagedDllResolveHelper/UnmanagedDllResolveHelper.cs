@@ -48,7 +48,7 @@ namespace UnmanagedDllResolveHelper
             }
             else
             {
-                throw new PlatformNotSupportedException("This platform is not supported.");
+                return null;
             }
         }
 
@@ -68,7 +68,7 @@ namespace UnmanagedDllResolveHelper
             }
             else
             {
-                throw new PlatformNotSupportedException("This platform is not supported.");
+                return Array.Empty<string>();
             }
         }
     }
