@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 #
 UnmanagedDllResolveHelper.Tests/vendor/*
 !UnmanagedDllResolveHelper.Tests/vendor/.gitkeep
+
+# Use root README.md
+UnmanagedDllResolveHelper/README.md

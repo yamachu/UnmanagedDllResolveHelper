@@ -5,6 +5,20 @@
     <Nullable>enable</Nullable>
     <LangVersion>9</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>UnmanagedDllResolveHelper</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>yamachu</Authors>
+    <Description>A helper library for resolving unmanaged DLLs.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/yamachu/UnmanagedDllResolveHelper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yamachu/UnmanagedDllResolveHelper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dll native unmanaged</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="" Visible="false" CopyToOutputDirectory="PreserveNewest" Link="README.md" />
+  </ItemGroup>
 
 </Project>
