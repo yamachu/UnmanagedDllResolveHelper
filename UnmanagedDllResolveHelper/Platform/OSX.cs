@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace UnmanagedDllResolveHelper.Platform
@@ -21,17 +20,12 @@ namespace UnmanagedDllResolveHelper.Platform
         [DllImport("libdl.dylib")]
         private static extern int dladdr(IntPtr addr, out DlInfo info);
 
-        private static IntPtr GetCurrentModuleHandle()
+        [UnmanagedCallersOnly(EntryPoint = "__DONT_CALL_UnmanagedDllResolveHelper_Platform_OSX__")]
+        public static void __OSX_NATIVE_EXPORT_FUNCTION__() { }
+
+        private static unsafe IntPtr GetCurrentModuleHandle()
         {
-            var methodHandle = typeof(OSX).GetMethod(nameof(GetCurrentModuleHandle),
-                BindingFlags.NonPublic | BindingFlags.Static)?.MethodHandle;
-
-            if (methodHandle.HasValue)
-            {
-                return methodHandle.Value.GetFunctionPointer();
-            }
-
-            return IntPtr.Zero;
+            return (IntPtr)(delegate* unmanaged<void>)&__OSX_NATIVE_EXPORT_FUNCTION__;
         }
 
         public static string? GetCurrentLibraryDirectory()
@@ -64,7 +58,6 @@ namespace UnmanagedDllResolveHelper.Platform
             var paths = new List<string>
             {
                 Path.Combine(basePath, $"{libraryName}.dylib"),
-                Path.Combine(basePath, $"lib{libraryName}.dylib")
             };
             if (!libraryName.StartsWith("lib"))
             {
