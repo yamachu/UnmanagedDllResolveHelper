@@ -41,6 +41,10 @@ namespace UnmanagedDllResolveHelper
             {
                 return Platform.Windows.GetCurrentLibraryDirectory();
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return Platform.Linux.GetCurrentLibraryDirectory();
+            }
             else
             {
                 return null;
@@ -56,6 +60,10 @@ namespace UnmanagedDllResolveHelper
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return Platform.Windows.GetPossibleLibraryPaths(libraryName, basePath);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return Platform.Linux.GetPossibleLibraryPaths(libraryName, basePath);
             }
             else
             {
