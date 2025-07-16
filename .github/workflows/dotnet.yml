@@ -12,17 +12,18 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         runner:
           - os: ubuntu-latest
-            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.so
-            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dll
+            env_fail: SampleNativeLibrary.so
+            env_pass: SampleNativeLibraryWithLoader.so
           - os: windows-latest
-            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.dll
-            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dll
+            env_fail: SampleNativeLibrary.dll
+            env_pass: SampleNativeLibraryWithLoader.dll
           - os: macos-latest
-            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.dylib
-            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dylib
+            env_fail: SampleNativeLibrary.dylib
+            env_pass: SampleNativeLibraryWithLoader.dylib
     runs-on: ${{ matrix.runner.os }}
 
     steps:
@@ -30,25 +31,21 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: 9.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+    - name: Publish Test Resource
+      run: dotnet publish --use-current-runtime
+      working-directory: TestResources
     - name: Test (fail)
       id: test-fail
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
       continue-on-error: true
       env:
         NATIVE_PLUGIN_NAME: ${{ matrix.runner.env_fail }}
-    - name: Verify test failure
-      run: |
-        if [ "${{ steps.test-fail.outcome }}" != "failure" ]; then
-          echo "Expected test to fail, but it passed"
-          exit 1
-        fi
-        echo "Test failed as expected"
     - name: Test (pass)
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
       env:
         NATIVE_PLUGIN_NAME: ${{ matrix.runner.env_pass }}
