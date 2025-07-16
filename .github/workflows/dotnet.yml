@@ -15,14 +15,14 @@ jobs:
       matrix:
         runner:
           - os: ubuntu-latest
-            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.so
-            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dll
+            env_fail: SampleNativeLibrary.so
+            env_pass: SampleNativeLibraryWithLoader.so
           - os: windows-latest
-            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.dll
-            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dll
+            env_fail: SampleNativeLibrary.dll
+            env_pass: SampleNativeLibraryWithLoader.dll
           - os: macos-latest
-            env_fail: NATIVE_PLUGIN_NAME=SampleNativeLibrary.dylib
-            env_pass: NATIVE_PLUGIN_NAME=SampleNativeLibraryWithLoader.dylib
+            env_fail: SampleNativeLibrary.dylib
+            env_pass: SampleNativeLibraryWithLoader.dylib
     runs-on: ${{ matrix.runner.os }}
 
     steps:
