@@ -482,3 +482,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+#
+UnmanagedDllResolveHelper.Tests/vendor/*
+!UnmanagedDllResolveHelper.Tests/vendor/.gitkeep
