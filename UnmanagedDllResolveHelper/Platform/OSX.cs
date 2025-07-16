@@ -58,7 +58,6 @@ namespace UnmanagedDllResolveHelper.Platform
             var paths = new List<string>
             {
                 Path.Combine(basePath, $"{libraryName}.dylib"),
-                Path.Combine(basePath, $"lib{libraryName}.dylib")
             };
             if (!libraryName.StartsWith("lib"))
             {
