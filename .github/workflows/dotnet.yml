@@ -35,6 +35,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+    - name: Publish Test Resource
+      run: dotnet publish --use-current-runtime
+      working-directory: TestResources
     - name: Test (fail)
       id: test-fail
       run: dotnet test --no-build --verbosity normal
