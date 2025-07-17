@@ -6,7 +6,7 @@
     <LangVersion>9</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageId>UnmanagedDllResolveHelper</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>yamachu</Authors>
     <Description>A helper library for resolving unmanaged DLLs.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
