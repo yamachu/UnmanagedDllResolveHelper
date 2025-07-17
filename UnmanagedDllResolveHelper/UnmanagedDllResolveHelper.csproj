@@ -15,6 +15,9 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>dll native unmanaged</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsTrimmable>true</IsTrimmable>
+    <TrimMode>full</TrimMode>
+    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>
