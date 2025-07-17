@@ -35,26 +35,12 @@ namespace UnmanagedDllResolveHelper
 
         public static IntPtr ResolveUnmanagedDll(object _, string unmanagedDllName)
         {
-            IntPtr functionPointer = IntPtr.Zero;
-            try
+            unsafe
             {
-                var thisModuleFunctionPointer = typeof(UnmanagedDllCurrentLibraryLocationResolver)
-                    .GetMethod(
-                        nameof(GetCurrentLibraryDirectory),
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
-                    )?.MethodHandle.GetFunctionPointer();
+                var functionPointer = (IntPtr)(delegate*<IntPtr, string?>)&GetCurrentLibraryDirectory;
 
-                if (thisModuleFunctionPointer != null && thisModuleFunctionPointer.Value != IntPtr.Zero)
-                {
-                    functionPointer = thisModuleFunctionPointer.Value;
-                }
+                return ResolveUnmanagedDll(functionPointer)(_, unmanagedDllName);
             }
-            catch
-            {
-
-            }
-
-            return ResolveUnmanagedDll(functionPointer)(_, unmanagedDllName);
         }
 
         private static string? GetCurrentLibraryDirectory(IntPtr functionPointer)
