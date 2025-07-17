@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 namespace UnmanagedDllResolveHelper.Platform
 {
 
+    // Maybe no need
     internal class Linux
     {
         [StructLayout(LayoutKind.Sequential)]
