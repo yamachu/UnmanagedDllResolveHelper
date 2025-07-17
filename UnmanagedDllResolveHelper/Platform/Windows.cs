@@ -20,9 +20,6 @@ namespace UnmanagedDllResolveHelper.Platform
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, int nSize);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        static extern bool AddDllDirectory(string lpPathName);
-
         [UnmanagedCallersOnly(EntryPoint = "__DONT_CALL_UnmanagedDllResolveHelper_Platform_Windows__")]
         public static void __WINDOWS_NATIVE_EXPORT_FUNCTION__() { }
 
