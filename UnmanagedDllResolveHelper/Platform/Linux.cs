@@ -21,28 +21,11 @@ namespace UnmanagedDllResolveHelper.Platform
         [DllImport("libdl")]
         private static extern int dladdr(IntPtr addr, out DlInfo info);
 
-        private static int _Internal_ModuleHandle()
-        {
-            return DateTime.Now.Millisecond;
-        }
-
-        public static string? GetCurrentLibraryDirectory()
+        public static string? GetCurrentLibraryDirectory(IntPtr functionPointer)
         {
             try
             {
-                var handle = typeof(Linux)
-                .GetMethod(
-                    nameof(_Internal_ModuleHandle),
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
-                )?.MethodHandle.GetFunctionPointer();
-
-                if (handle == null)
-                    return null;
-
-                if (handle.Value == IntPtr.Zero)
-                    return null;
-
-                var result = dladdr(handle.Value, out DlInfo info);
+                var result = dladdr(functionPointer, out DlInfo info);
                 if (result != 0 && info.dli_fname != IntPtr.Zero)
                 {
                     var modulePath = Marshal.PtrToStringAnsi(info.dli_fname);

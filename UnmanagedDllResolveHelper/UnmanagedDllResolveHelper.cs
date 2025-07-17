@@ -6,44 +6,70 @@ namespace UnmanagedDllResolveHelper
 {
     public static class UnmanagedDllCurrentLibraryLocationResolver
     {
-        public static IntPtr ResolveUnmanagedDll(object _, string unmanagedDllName)
+        public static Func<object, string, IntPtr> ResolveUnmanagedDll(IntPtr baseFunctionPointer)
         {
-            var currentLibraryDir = GetCurrentLibraryDirectory();
-            if (string.IsNullOrEmpty(currentLibraryDir))
+            return (_, unmanagedDllName) =>
             {
+                var currentLibraryDir = GetCurrentLibraryDirectory(baseFunctionPointer);
+                if (string.IsNullOrEmpty(currentLibraryDir))
+                {
+                    return IntPtr.Zero;
+                }
+
+                var possiblePaths = GetPossibleLibraryPaths(unmanagedDllName, currentLibraryDir);
+                foreach (var path in possiblePaths)
+                {
+                    if (!File.Exists(path))
+                    {
+                        continue;
+                    }
+
+                    if (NativeLibrary.TryLoad(path, out IntPtr handle))
+                    {
+                        return handle;
+                    }
+                }
                 return IntPtr.Zero;
-            }
-
-            var possiblePaths = GetPossibleLibraryPaths(unmanagedDllName, currentLibraryDir);
-            foreach (var path in possiblePaths)
-            {
-                if (!File.Exists(path))
-                {
-                    continue;
-                }
-
-                if (NativeLibrary.TryLoad(path, out IntPtr handle))
-                {
-                    return handle;
-                }
-            }
-
-            return IntPtr.Zero;
+            };
         }
 
-        private static string? GetCurrentLibraryDirectory()
+        public static IntPtr ResolveUnmanagedDll(object _, string unmanagedDllName)
+        {
+            IntPtr functionPointer = IntPtr.Zero;
+            try
+            {
+                var thisModuleFunctionPointer = typeof(UnmanagedDllCurrentLibraryLocationResolver)
+                    .GetMethod(
+                        nameof(GetCurrentLibraryDirectory),
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
+                    )?.MethodHandle.GetFunctionPointer();
+
+                if (thisModuleFunctionPointer != null && thisModuleFunctionPointer.Value != IntPtr.Zero)
+                {
+                    functionPointer = thisModuleFunctionPointer.Value;
+                }
+            }
+            catch
+            {
+
+            }
+
+            return ResolveUnmanagedDll(functionPointer)(_, unmanagedDllName);
+        }
+
+        private static string? GetCurrentLibraryDirectory(IntPtr functionPointer)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return Platform.OSX.GetCurrentLibraryDirectory();
+                return Platform.OSX.GetCurrentLibraryDirectory(functionPointer);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return Platform.Windows.GetCurrentLibraryDirectory();
+                return Platform.Windows.GetCurrentLibraryDirectory(functionPointer);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return Platform.Linux.GetCurrentLibraryDirectory();
+                return Platform.Linux.GetCurrentLibraryDirectory(functionPointer);
             }
             else
             {

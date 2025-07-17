@@ -20,27 +20,13 @@ namespace UnmanagedDllResolveHelper.Platform
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, int nSize);
 
-        private static int _Internal_ModuleHandle()
-        {
-            return DateTime.Now.Millisecond;
-        }
-
-        public static string? GetCurrentLibraryDirectory()
+        public static string? GetCurrentLibraryDirectory(IntPtr functionPointer)
         {
             try
             {
-                var handle = typeof(Windows)
-                .GetMethod(
-                    nameof(_Internal_ModuleHandle),
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
-                )?.MethodHandle.GetFunctionPointer();
-
-                if (handle == null)
-                    return null;
-
                 GetModuleHandleEx(
                     GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                    handle.Value,
+                    functionPointer,
                     out var hModule);
 
                 if (hModule == IntPtr.Zero)
