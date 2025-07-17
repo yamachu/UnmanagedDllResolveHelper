@@ -28,14 +28,34 @@ namespace UnmanagedDllResolveHelper.Platform
             return (IntPtr)(delegate* unmanaged<void>)&__OSX_NATIVE_EXPORT_FUNCTION__;
         }
 
+        private static int _Internal_ModuleHandle()
+        {
+            return DateTime.Now.Millisecond;
+        }
+
         public static string? GetCurrentLibraryDirectory()
         {
             try
             {
-                var moduleHandle = GetCurrentModuleHandle();
-                if (moduleHandle != IntPtr.Zero)
+                IntPtr handle = IntPtr.Zero;
+                var maybeHandle = typeof(OSX)
+                .GetMethod(
+                    nameof(_Internal_ModuleHandle),
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
+                )?.MethodHandle;
+                if (maybeHandle.HasValue)
                 {
-                    var result = dladdr(moduleHandle, out DlInfo info);
+                    handle = maybeHandle.Value.GetFunctionPointer();
+                    System.Console.WriteLine($"maybeHandle: {handle}");
+                }
+                else
+                {
+                    handle = GetCurrentModuleHandle();
+                }
+
+                if (handle != IntPtr.Zero)
+                {
+                    var result = dladdr(handle, out DlInfo info);
                     if (result != 0 && info.dli_fname != IntPtr.Zero)
                     {
                         var modulePath = Marshal.PtrToStringAnsi(info.dli_fname);

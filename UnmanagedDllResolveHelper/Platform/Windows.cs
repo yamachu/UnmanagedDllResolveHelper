@@ -28,11 +28,32 @@ namespace UnmanagedDllResolveHelper.Platform
             return (IntPtr)(delegate* unmanaged<void>)&__WINDOWS_NATIVE_EXPORT_FUNCTION__;
         }
 
+        private static int _Internal_ModuleHandle()
+        {
+            return DateTime.Now.Millisecond;
+        }
+
         public static string? GetCurrentLibraryDirectory()
         {
+            IntPtr handle = IntPtr.Zero;
+            var maybeHandle = typeof(OSX)
+            .GetMethod(
+                nameof(_Internal_ModuleHandle),
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
+            )?.MethodHandle;
+            if (maybeHandle.HasValue)
+            {
+                handle = maybeHandle.Value.GetFunctionPointer();
+                System.Console.WriteLine($"maybeHandle: {handle}");
+            }
+            else
+            {
+                handle = GetSelfFunctionPtr();
+            }
+
             GetModuleHandleEx(
                 GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                GetSelfFunctionPtr(),
+                handle,
                 out var hModule);
 
             if (hModule == IntPtr.Zero)
