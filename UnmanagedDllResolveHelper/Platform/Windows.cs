@@ -20,32 +20,31 @@ namespace UnmanagedDllResolveHelper.Platform
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, int nSize);
 
-        [UnmanagedCallersOnly(EntryPoint = "__DONT_CALL_UnmanagedDllResolveHelper_Platform_Windows__")]
-        public static void __WINDOWS_NATIVE_EXPORT_FUNCTION__() { }
-
-        private static unsafe IntPtr GetSelfFunctionPtr()
+        public static string? GetCurrentLibraryDirectory(IntPtr functionPointer)
         {
-            return (IntPtr)(delegate* unmanaged<void>)&__WINDOWS_NATIVE_EXPORT_FUNCTION__;
-        }
+            try
+            {
+                GetModuleHandleEx(
+                    GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                    functionPointer,
+                    out var hModule);
 
-        public static string? GetCurrentLibraryDirectory()
-        {
-            GetModuleHandleEx(
-                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                GetSelfFunctionPtr(),
-                out var hModule);
+                if (hModule == IntPtr.Zero)
+                    return null;
 
-            if (hModule == IntPtr.Zero)
+                var sb = new StringBuilder(EXTENDED_MAX_PATH);
+                GetModuleFileName(hModule, sb, sb.Capacity);
+                if (sb.Length == 0)
+                    return null;
+
+                var fullPath = sb.ToString();
+
+                return Path.GetDirectoryName(fullPath);
+            }
+            catch
+            {
                 return null;
-
-            var sb = new StringBuilder(EXTENDED_MAX_PATH);
-            GetModuleFileName(hModule, sb, sb.Capacity);
-            if (sb.Length == 0)
-                return null;
-
-            var fullPath = sb.ToString();
-
-            return Path.GetDirectoryName(fullPath);
+            }
         }
 
         public static string[] GetPossibleLibraryPaths(string libraryName, string basePath)

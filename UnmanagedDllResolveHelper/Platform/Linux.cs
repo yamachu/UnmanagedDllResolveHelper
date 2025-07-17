@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 namespace UnmanagedDllResolveHelper.Platform
 {
 
+    // Maybe no need
     internal class Linux
     {
         [StructLayout(LayoutKind.Sequential)]
@@ -20,29 +21,17 @@ namespace UnmanagedDllResolveHelper.Platform
         [DllImport("libdl")]
         private static extern int dladdr(IntPtr addr, out DlInfo info);
 
-        [UnmanagedCallersOnly(EntryPoint = "__DONT_CALL_UnmanagedDllResolveHelper_Platform_Linux__")]
-        public static void __LINUX_NATIVE_EXPORT_FUNCTION__() { }
-
-        private static unsafe IntPtr GetCurrentModuleHandle()
-        {
-            return (IntPtr)(delegate* unmanaged<void>)&__LINUX_NATIVE_EXPORT_FUNCTION__;
-        }
-
-        public static string? GetCurrentLibraryDirectory()
+        public static string? GetCurrentLibraryDirectory(IntPtr functionPointer)
         {
             try
             {
-                var moduleHandle = GetCurrentModuleHandle();
-                if (moduleHandle != IntPtr.Zero)
+                var result = dladdr(functionPointer, out DlInfo info);
+                if (result != 0 && info.dli_fname != IntPtr.Zero)
                 {
-                    var result = dladdr(moduleHandle, out DlInfo info);
-                    if (result != 0 && info.dli_fname != IntPtr.Zero)
+                    var modulePath = Marshal.PtrToStringAnsi(info.dli_fname);
+                    if (!string.IsNullOrEmpty(modulePath))
                     {
-                        var modulePath = Marshal.PtrToStringAnsi(info.dli_fname);
-                        if (!string.IsNullOrEmpty(modulePath))
-                        {
-                            return Directory.GetParent(modulePath)?.FullName;
-                        }
+                        return Directory.GetParent(modulePath)?.FullName;
                     }
                 }
             }
