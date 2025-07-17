@@ -20,14 +20,6 @@ namespace UnmanagedDllResolveHelper.Platform
         [DllImport("libdl")]
         private static extern int dladdr(IntPtr addr, out DlInfo info);
 
-        [UnmanagedCallersOnly(EntryPoint = "__DONT_CALL_UnmanagedDllResolveHelper_Platform_Linux__")]
-        public static void __LINUX_NATIVE_EXPORT_FUNCTION__() { }
-
-        private static unsafe IntPtr GetCurrentModuleHandle()
-        {
-            return (IntPtr)(delegate* unmanaged<void>)&__LINUX_NATIVE_EXPORT_FUNCTION__;
-        }
-
         private static int _Internal_ModuleHandle()
         {
             return DateTime.Now.Millisecond;
@@ -37,32 +29,25 @@ namespace UnmanagedDllResolveHelper.Platform
         {
             try
             {
-                IntPtr handle = IntPtr.Zero;
-                var maybeHandle = typeof(OSX)
+                var handle = typeof(Linux)
                 .GetMethod(
                     nameof(_Internal_ModuleHandle),
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
-                )?.MethodHandle;
-                if (maybeHandle.HasValue)
-                {
-                    handle = maybeHandle.Value.GetFunctionPointer();
-                    System.Console.WriteLine($"maybeHandle: {handle}");
-                }
-                else
-                {
-                    handle = GetCurrentModuleHandle();
-                }
+                )?.MethodHandle.GetFunctionPointer();
 
-                if (handle != IntPtr.Zero)
+                if (handle == null)
+                    return null;
+
+                if (handle.Value == IntPtr.Zero)
+                    return null;
+
+                var result = dladdr(handle.Value, out DlInfo info);
+                if (result != 0 && info.dli_fname != IntPtr.Zero)
                 {
-                    var result = dladdr(handle, out DlInfo info);
-                    if (result != 0 && info.dli_fname != IntPtr.Zero)
+                    var modulePath = Marshal.PtrToStringAnsi(info.dli_fname);
+                    if (!string.IsNullOrEmpty(modulePath))
                     {
-                        var modulePath = Marshal.PtrToStringAnsi(info.dli_fname);
-                        if (!string.IsNullOrEmpty(modulePath))
-                        {
-                            return Directory.GetParent(modulePath)?.FullName;
-                        }
+                        return Directory.GetParent(modulePath)?.FullName;
                     }
                 }
             }
